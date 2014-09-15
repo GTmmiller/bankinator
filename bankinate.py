@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 # Constants
 
 # Username/Password Input
+bank_session = requests.Session()
 username = raw_input('Enter your username: ')
 password = getpass.getpass('Enter your password: ')
 
@@ -39,7 +40,17 @@ for index,account in enumerate(accounts):
 
 inputaccount = raw_input('Choose an account: ')
 
-r = requests.get("https://online.bbt.com" + accounts[int(inputaccount)]['url'],\
-                 cookies = login_cookies)
-f = open('chart.html', 'w')
-f.write(r.text)
+r = bank_session.get("https://online.bbt.com" + accounts[int(inputaccount)]['url'])
+#f = open('chart.html', 'w')
+#f.write(r.text)
+soup = BeautifulSoup(r.text)
+csv = ''
+fout = open('transactions.csv', 'w')
+
+for row in soup.find('tbody').find_all('tr'):
+    for tag in row.contents:
+        if tag == u'\n' or tag.get_text().strip() == u'':
+            continue
+        csv += '"' + " ".join(tag.get_text().strip().split()) + '"' + ','
+    csv += '\n'
+fout.write(csv)
