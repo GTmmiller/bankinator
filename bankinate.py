@@ -1,6 +1,7 @@
 import getpass
 import requests
 import re
+import datetime
 from bs4 import BeautifulSoup
 
 # Constants
@@ -41,11 +42,15 @@ for index,account in enumerate(accounts):
 inputaccount = raw_input('Choose an account: ')
 
 r = bank_session.get("https://online.bbt.com" + accounts[int(inputaccount)]['url'])
+
+today = datetime.date.today()
+
 #f = open('chart.html', 'w')
 #f.write(r.text)
 soup = BeautifulSoup(r.text)
 csv = ''
-fout = open('transactions.csv', 'w')
+fout = open(str(today.year) + '_' + str(today.month) + '_' + str(today.day) + \
+            '_' + account['type'] + account['lastno'] + '_transactions.csv', 'w')
 
 for row in soup.find('tbody').find_all('tr'):
     for tag in row.contents:
