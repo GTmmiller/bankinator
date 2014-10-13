@@ -1,8 +1,10 @@
 import getpass
 import requests
 import re
-import datetime
+from datetime import datetime
 from bs4 import BeautifulSoup
+import calendar
+from string import Template
 
 # Constants
 
@@ -20,10 +22,12 @@ request_payload = {'BrowserDetective': 'General Inquiry',
 r = requests.post("https://online.bbt.com/auth/pwd.tb", data=request_payload)
 login_cookies = r.cookies
 soup = BeautifulSoup(r.text)
-# f = open('stuff.html', 'w')
-# f.write(r.text)
+#f = open('stuff.html', 'w')
+#f.write(r.text)
 
 accounts = []
+
+# parse bank accounts
 for link in soup.find_all(href=re.compile('/olbsys/bbtolbext/accntHist/+')):
     divstrings = link.div.get_text().strip().split()
     account = {}
@@ -33,20 +37,61 @@ for link in soup.find_all(href=re.compile('/olbsys/bbtolbext/accntHist/+')):
     account['amount'] = divstrings[2]
     accounts.append(account)
 
+# parse credit card accounts
+for link in soup.find_all(href=re.compile('/olbsys/bbtolbext/bankcards/+')) :
+    if link.div != None:
+        account = {}
+        account['url'] = link.get('href')
+
+        typeAndLastNo = link.div.contents[0].strip().rsplit(None, 1)
+        account['type'] = typeAndLastNo[0]
+        account['lastno'] = typeAndLastNo[1]
+        account['amount'] = link.div.h3.get_text().strip() + ' ' + link.div.span.get_text()
+        accounts.append(account)
+
 print('You have ' + str(len(accounts)) + ' account options.\n')
 
 for index,account in enumerate(accounts):
     print('Option [' + str(index) + '] is a ' + account['type'] + ' account ending in '\
-          + account['lastno'] + ' containing $' + account['amount'])
+          + account['lastno'] + ' with a balance of $' + account['amount'])
 
 inputaccount = raw_input('Choose an account: ')
 
+account_params = {'action': 'managePostedTransactions',
+                  'action': 'managePostedTransactions',
+                  'flag': '3D',
+                  'rand': str(calendar.timegm(datetime.utcnow().utctimetuple()))}
+# account_request = Template('https://online.bbt.com/olbsys/bbtolbext/bankcards/manageDetails?action=managePostedTransactions&action=managePostedTransactions&flag=3D&rand=0')
+# r = bank_session.get("https://online.bbt.com/olbsys/bbtolbext/bankcards/manageDetails",
+#                     params = account_params)
+ 
 r = bank_session.get("https://online.bbt.com" + accounts[int(inputaccount)]['url'])
+print r.text
 
-today = datetime.date.today()
+r = bank_session.get('https://online.bbt.com/olbsys/bbtolbext/bankcards/manageDetails?action=managePostedTransactions&action=managePostedTransactions&flag=3D&rand=0')
+print r.text   
 
-#f = open('chart.html', 'w')
-#f.write(r.text)
+f = open('chart.html', 'w')
+f.write(r.text)
+
+csv = ''
+
+fout = open('chart.html', 'r')
+csvfile = open('cc_csvs.csv', 'w')
+soup = BeautifulSoup(fout.read())
+for row in soup.find('tbody').find_all('tr'):
+    csv += '"' + unicode(row.th.get_text()) + '"' + ','
+    for td in row.find_all('td'):
+        td_string = unicode(' '.join(td.get_text().strip().split()))
+        if(td_string != u''):
+            csv += '"' + td_string + '"' + ','
+    csv += '\n'
+
+print csv
+
+csvfile.write(csv)
+
+'''
 soup = BeautifulSoup(r.text)
 csv = ''
 fout = open(str(today.year) + '_' + str(today.month) + '_' + str(today.day) + \
@@ -59,3 +104,4 @@ for row in soup.find('tbody').find_all('tr'):
         csv += '"' + " ".join(tag.get_text().strip().split()) + '"' + ','
     csv += '\n'
 fout.write(csv)
+'''
