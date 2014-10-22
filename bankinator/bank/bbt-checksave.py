@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import datetime
 
 _bank_session = requests.Session()
 _base_url = "https://online.bbt.com"
@@ -37,12 +36,12 @@ def navigate(homepage):
               + account['lastno'] + ' containing $' + account['amount'])
 
     input_account = raw_input('Choose an account: ')
-    account_request = _bank_session.get(_base_url + accounts[int(input_account)]['url'])
-    return account_request.text
+    return accounts[int(input_account)]
 
 
-def parse(account_page):
-    account_soup = BeautifulSoup(account_page)
+def parse(account):
+    account_request = _bank_session.get(_base_url + account['url'])
+    account_soup = BeautifulSoup(account_request.text)
     account_data = []
 
     for row in account_soup.find('tbody').find_all('tr'):
@@ -54,4 +53,4 @@ def parse(account_page):
                 data_line.append(unicode(' '.join(tag.get_text().strip.split())))
         account_data.append(data_line)
 
-    return account_data
+    return account, account_data
