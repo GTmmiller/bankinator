@@ -15,8 +15,8 @@ password = getpass.getpass('Enter your password: ')
 
 # Parameters for Post
 request_payload = {'BrowserDetective': 'General Inquiry',
-                   'var_field': "",
-                   'UserName': username, 'inq': 'O', 'Password': password}
+                   'var_field': "", 'UserName': username, 'inq': 'O',
+                   'Password': password}
 
 # Login
 r = requests.post("https://online.bbt.com/auth/pwd.tb", data=request_payload)
@@ -40,10 +40,9 @@ for link in soup.find_all(href=re.compile('/olbsys/bbtolbext/accntHist/+')):
 # parse credit card accounts
 for link in soup.find_all(href=re.compile('/olbsys/bbtolbext/bankcards/+')) :
     if link.div != None:
+        typeAndLastNo = link.div.contents[0].strip().rsplit(None, 1)
         account = {}
         account['url'] = link.get('href')
-
-        typeAndLastNo = link.div.contents[0].strip().rsplit(None, 1)
         account['type'] = typeAndLastNo[0]
         account['lastno'] = typeAndLastNo[1]
         account['amount'] = link.div.h3.get_text().strip() + ' ' + link.div.span.get_text()
@@ -68,12 +67,14 @@ account_params = {'action': 'managePostedTransactions',
 r = bank_session.get("https://online.bbt.com" + accounts[int(inputaccount)]['url'])
 print r.text
 
-r = bank_session.get('https://online.bbt.com/olbsys/bbtolbext/bankcards/manageDetails?action=managePostedTransactions&action=managePostedTransactions&flag=3D&rand=0')
-print r.text   
-
 f = open('chart.html', 'w')
 f.write(r.text)
+f.close()
 
+r = bank_session.get('https://online.bbt.com/olbsys/bbtolbext/bankcards/manageDetails?action=managePostedTransactions&action=managePostedTransactions&flag=3D&rand=0')
+print r.text
+
+print r.json()
 csv = ''
 
 fout = open('chart.html', 'r')
