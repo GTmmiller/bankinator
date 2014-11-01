@@ -1,11 +1,73 @@
-import getpass
-import requests
-import re
-from datetime import datetime
-from bs4 import BeautifulSoup
-import calendar
-from string import Template
+import pkgutil
+import sys
+import bankinator.bank
+import bankinator.output
 
+bank_modules = []
+output_modules = []
+
+# Check available modules
+for importer, modname, ispkg in pkgutil.walk_packages(path=bankinator.bank.__path__,
+                                                      prefix=bankinator.bank.__name__+'.',
+                                                      onerror=lambda x: None):
+    bank_modules.append(modname)
+
+for importer, modname, ispkg in pkgutil.walk_packages(path=bankinator.output.__path__,
+                                                      prefix=bankinator.output.__name__+'.',
+                                                      onerror=lambda x: None):
+    output_modules.append(modname)
+
+print bank_modules
+print output_modules
+
+print 'You have ' + str(len(bank_modules)) + ' bank modules to choose from.\n'
+
+for index, module in enumerate(bank_modules):
+    print ('[ ' + str(index) + ' ] ' + module)
+
+input_bank = raw_input('Select a bank module: ')
+bank_module = __import__(bank_modules[int(input_bank)], fromlist=['Bank'])
+
+print 'You have ' + str(len(output_modules)) + ' output modules to choose from.\n'
+
+for index, module in enumerate(output_modules):
+    print ('[ ' + str(index) + ' ] ' + module)
+
+input_output = raw_input('Select an output module: ')
+output_module = __import__(output_modules[int(input_output)], fromlist=['WriteOutput'])
+
+bank_class = getattr(bank_module, 'Bank')
+output_class = getattr(output_module, 'WriteOutput')
+
+bank = bank_class()
+output = output_class()
+
+try:
+    username = raw_input('Enter your username: ')
+    password = raw_input('Enter your password: ')# getpass.getpass('Enter your password: ')
+    homepage = bank.authenticate(username, password)
+except:
+    raise
+
+try:
+    raw_data = bank.navigate(homepage)
+except:
+    raise
+
+try:
+    account_data = bank.parse(raw_data)
+except:
+    raise
+
+try:
+    output.write(account_data[0], account_data[1])
+except:
+    raise
+finally:
+    sys.exit()
+
+
+'''
 # Constants
 
 # Username/Password Input
@@ -92,7 +154,7 @@ print csv
 
 csvfile.write(csv)
 
-'''
+
 soup = BeautifulSoup(r.text)
 csv = ''
 fout = open(str(today.year) + '_' + str(today.month) + '_' + str(today.day) + \

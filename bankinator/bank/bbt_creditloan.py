@@ -5,17 +5,17 @@ from datetime import datetime
 from base_bank import BankBase
 
 
-class BBTCreditLoan(BankBase):
+class Bank(BankBase):
 
     def __init__(self):
         BankBase.__init__(self)
         self._bank_session = requests.Session()
-        self._base_url = "https://online.bbt.com"
-        self._auth_url = "/auth.pwd.tb"
+        self._base_url = 'https://online.bbt.com'
+        self._auth_url = '/auth/pwd.tb'
 
     def authenticate(self, username, password):
         request_payload = {'BrowserDetective': 'General Inquiry',
-                           'var_field': "",
+                           'var_field': '',
                            'UserName': username, 'inq': 'O',
                            'Password': password}
 

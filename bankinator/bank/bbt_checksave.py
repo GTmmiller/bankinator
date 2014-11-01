@@ -4,13 +4,13 @@ import re
 from base_bank import BankBase
 
 
-class BBTCheckSave(BankBase):
+class Bank(BankBase):
 
     def __init__(self):
         BankBase.__init__(self)
         self._bank_session = requests.Session()
-        self._base_url = "https://online.bbt.com"
-        self._auth_url = "/auth.pwd.tb"
+        self._base_url = 'https://online.bbt.com'
+        self._auth_url = '/auth/pwd.tb'
 
     def authenticate(self, username, password):
         request_payload = {'BrowserDetective': 'General Inquiry',
@@ -53,7 +53,7 @@ class BBTCheckSave(BankBase):
                 if tag == u'\n' or tag.get_text().strip() == u'':
                     continue
                 else:
-                    data_line.append(unicode(' '.join(tag.get_text().strip.split())))
+                    data_line.append(unicode(' '.join(tag.get_text().strip().split())))
             account_data.append(data_line)
 
         return account, account_data
