@@ -40,11 +40,11 @@ class Bank(BankBase):
                   + account['lastno'] + ' containing $' + account['amount'])
 
         input_account = raw_input('Choose an account: ')
-        return accounts[int(input_account)]
+        check_save_table = self._bank_session.get(self._base_url + accounts[int(input_account)]['url'])
+        return accounts[int(input_account)], check_save_table.text
 
-    def parse(self, account):
-        account_request = self._bank_session.get(self._base_url + account['url'])
-        account_soup = BeautifulSoup(account_request.text)
+    def parse(self, account, account_text):
+        account_soup = BeautifulSoup(account_text)
         account_data = []
 
         for row in account_soup.find('tbody').find_all('tr'):

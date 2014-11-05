@@ -16,5 +16,5 @@ class BankBase:
         return
 
     @abc.abstractmethod
-    def parse(self, account):
+    def parse(self, account, account_text):
         return

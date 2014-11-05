@@ -56,10 +56,10 @@ class Bank(BankBase):
         cc_loan_table = self._bank_session.get('https://online.bbt.com/olbsys/bbtolbext/bankcards/manageDetails',
                                                params=cc_loan_params)
 
-        return cc_loan_table.text
+        return accounts[int(input_account)], cc_loan_table.text
 
-    def parse(self, account):
-        account_soup = BeautifulSoup(account)
+    def parse(self, account, account_text):
+        account_soup = BeautifulSoup(account_text)
         account_data = []
 
         for row in account_soup.find('tbody').find_all('tr'):
