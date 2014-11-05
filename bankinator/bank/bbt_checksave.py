@@ -34,12 +34,12 @@ class Bank(BankBase):
             }
             accounts.append(account)
 
-        print('You have ' + str(len(accounts)) + ' account options.\n')
+        print('\nYou have ' + str(len(accounts)) + ' account options.\n')
         for index, account in enumerate(accounts):
             print('Option [' + str(index) + '] is a ' + account['type'] + ' account ending in '
                   + account['lastno'] + ' containing $' + account['amount'])
 
-        input_account = raw_input('Choose an account: ')
+        input_account = raw_input('\nChoose an account: ')
         check_save_table = self._bank_session.get(self._base_url + accounts[int(input_account)]['url'])
         return accounts[int(input_account)], check_save_table.text
 

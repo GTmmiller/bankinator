@@ -22,3 +22,5 @@ class WriteOutput(OutputBase):
         csv_file.write(csv_contents)
         csv_file.close()
 
+        print ('\n' + csv_filename + ' has been writen successfully!')
+

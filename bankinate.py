@@ -17,19 +17,16 @@ def ignore_base_walk(module_base_path):
 
 
 def module_selector(module_list, module_type):
-    print 'You have ' + str(len(module_list)) + ' ' + module_type + ' module(s) to choose from.\n'
+    print '\nYou have ' + str(len(module_list)) + ' ' + module_type + ' module(s) to choose from.\n'
 
     for index, module in enumerate(module_list):
         print ('[ ' + str(index) + ' ] ' + module)
 
-    input_module = raw_input('Select a ' + module_type + ' module: ')
+    input_module = raw_input('\nSelect a ' + module_type + ' module: ')
     return __import__(module_list[int(input_module)], fromlist=[module_type.capitalize()])
 
 bank_modules = ignore_base_walk(bankinator.bank)
 output_modules = ignore_base_walk(bankinator.output)
-
-print bank_modules
-print output_modules
 
 bank_module = module_selector(bank_modules, 'bank')
 output_module = module_selector(output_modules, 'output')
@@ -41,7 +38,7 @@ bank = bank_class()
 output = output_class()
 
 try:
-    username = raw_input('Enter your username: ')
+    username = raw_input('\nEnter your username: ')
     password = getpass.getpass('Enter your password: ')
     homepage = bank.authenticate(username, password)
 except:
