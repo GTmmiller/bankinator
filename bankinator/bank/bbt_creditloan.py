@@ -60,14 +60,19 @@ class Bank(BankBase):
 
     def parse(self, account, account_text):
         account_soup = BeautifulSoup(account_text)
-        account_data = []
+        account_headers = []
+        account_transactions = {}
 
-        for row in account_soup.find('tbody').find_all('tr'):
-            data_line = [unicode(row.th.get_text())]
-            for td in row.find_all('td'):
-                td_string = unicode(' '.join(td.get_text().strip().split()))
-                if td_string != u'':
-                    data_line.append(td_string)
-            account_data.append(data_line)
+        # Retain the original order of the headers so the table rows eventually
+        # match the columns
+        for header in account_soup.table.thead.tr.find_all('th'):
+            account_headers.append(header.get_text())
+            account_transactions[header.get_text()] = []
 
-        return account, account_data
+        for row in account_soup.table.tbody.find_all('tr'):
+            account_transactions[account_headers[0]].append(row.th.get_text())
+
+            for index, table_data in enumerate(row.find_all('td')):
+                account_transactions[account_headers[index + 1]].append(''.join(table_data.get_text()).strip().split())
+
+        return account, account_transactions
