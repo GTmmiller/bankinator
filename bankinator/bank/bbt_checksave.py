@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from base_bank import BankBase
-
+import unicodedata
 
 class Bank(BankBase):
 
@@ -45,15 +45,19 @@ class Bank(BankBase):
 
     def parse(self, account, account_text):
         account_soup = BeautifulSoup(account_text)
-        account_data = []
+        account_headers = []
+        account_transactions = []
 
-        for row in account_soup.find('tbody').find_all('tr'):
-            data_line = []
-            for tag in row.contents:
-                if tag == u'\n' or tag.get_text().strip() == u'':
-                    continue
-                else:
-                    data_line.append(unicode(' '.join(tag.get_text().strip().split())))
-            account_data.append(data_line)
+        for header in account_soup.table.thead.tr.find_all('th'):
+            account_headers.append(header.get_text())
 
-        return account, account_data
+        account_transactions.append(account_headers)
+
+        for row in account_soup.table.tbody.find_all('tr'):
+            transaction_row = [row.th.get_text()]
+            for table_data in row.find_all('td'):
+                raw_table_data = unicodedata.normalize('NFKC', table_data.get_text())
+                transaction_row.append(' '.join(raw_table_data.strip().split()))
+            account_transactions.append(transaction_row)
+
+        return account, account_transactions

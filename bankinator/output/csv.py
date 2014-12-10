@@ -16,9 +16,9 @@ class WriteOutput(OutputBase):
         csv_contents = ''
         for line in account_data:
             for data in line:
-                csv_contents += data + ','
+                csv_contents += data + ';'
             csv_contents += '\n'
-
+        print repr(csv_contents)
         csv_file.write(csv_contents)
         csv_file.close()
 
