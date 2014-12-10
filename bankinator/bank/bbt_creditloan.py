@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 from datetime import datetime
 from base_bank import BankBase
-
+import unicodedata
 
 class Bank(BankBase):
 
@@ -71,7 +71,8 @@ class Bank(BankBase):
         for row in account_soup.table.tbody.find_all('tr'):
             transaction_row = [row.th.get_text()]
             for table_data in row.find_all('td'):
-                transaction_row.append(' '.join(table_data.get_text().strip().split()))
+                raw_table_data = unicodedata.normalize('NFKC', table_data.get_text())
+                transaction_row.append(' '.join(raw_table_data.strip().split()))
             account_transactions.append(transaction_row)
 
         return account, account_transactions
