@@ -37,7 +37,7 @@ setup(
     ],
     keywords='banking api script internet',
     packages=find_packages(),
-    install_reqires=['requests'],
+    install_requires=['requests'],
 
     entry_points={
         'console_scripts': ['bankinate=bankinate:main']
