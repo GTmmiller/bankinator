@@ -25,38 +25,40 @@ def module_selector(module_list, module_type):
     input_module = raw_input('\nSelect a ' + module_type + ' module: ')
     return __import__(module_list[int(input_module)], fromlist=[module_type.capitalize()])
 
-bank_modules = ignore_base_walk(bankinator.bank)
-output_modules = ignore_base_walk(bankinator.output)
 
-bank_module = module_selector(bank_modules, 'bank')
-output_module = module_selector(output_modules, 'output')
+def main():
+    bank_modules = ignore_base_walk(bankinator.bank)
+    output_modules = ignore_base_walk(bankinator.output)
 
-bank_class = getattr(bank_module, 'Bank')
-output_class = getattr(output_module, 'WriteOutput')
+    bank_module = module_selector(bank_modules, 'bank')
+    output_module = module_selector(output_modules, 'output')
 
-bank = bank_class()
-output = output_class()
+    bank_class = getattr(bank_module, 'Bank')
+    output_class = getattr(output_module, 'WriteOutput')
 
-try:
-    username = raw_input('\nEnter your username: ')
-    password = getpass.getpass('Enter your password: ')
-    homepage = bank.authenticate(username, password)
-except:
-    raise
+    bank = bank_class()
+    output = output_class()
 
-try:
-    (account, raw_data) = bank.navigate(homepage)
-except:
-    raise
+    try:
+        username = raw_input('\nEnter your username: ')
+        password = getpass.getpass('Enter your password: ')
+        homepage = bank.authenticate(username, password)
+    except:
+        raise
 
-try:
-    account_data = bank.parse(account, raw_data)
-except:
-    raise
+    try:
+        (account, raw_data) = bank.navigate(homepage)
+    except:
+        raise
 
-try:
-    output.write(account_data[0], account_data[1])
-except:
-    raise
-finally:
-    sys.exit()
+    try:
+        account_data = bank.parse(account, raw_data)
+    except:
+        raise
+
+    try:
+        output.write(account_data[0], account_data[1])
+    except:
+        raise
+    finally:
+        sys.exit()
